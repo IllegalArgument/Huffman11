@@ -53,11 +53,11 @@ object HuffmanDecompress {
 						val symbol = dictionary(length)(firstCode - code)
 						if (decompressedBuffer.remaining >= symbol.length) {
 							// If there's stilll space in the decompressed buffer for this chunk, just write the symbol
-							decompressedBuffer.put(symbol)
 							// And print some information if a filler symbol was used
 							if (unknown(length).contains(code)) {
 								println(f"Unknown codeword ${s"%${length}s".format(code.toBinaryString).replace(' ', '0')}%15s (dictionary 0x$dictionaryType%X, code length $length%2s, code ${f"0x$code%X"}%5s, symbol length ${symbol.length}) at decompressed offset 0x${decompressedBuffer.position}%X")
 							}
+							decompressedBuffer.put(symbol)
 						} else {
 							// Although this shouldn't happen with complete dictionaries, since we have a few missing
 							// symbols, it's possible that a codeword is parsed that would map to a symbol that is
