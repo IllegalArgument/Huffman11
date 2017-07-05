@@ -2,11 +2,11 @@
 
 ## About
 
-This project is a (currently) incomplete reconstruction of the Huffman dictionaries used to compress version 11.x Intel ME modules. The dictionaries are sufficient to decompress some modules entirely, with hashes matching those in the metadata files, but for others there will typically be a few unknown symbols encountered. Note that the decompression script requires the decompressed size of the Huffman compressed module as an argument; this can be found in the corresponding metadata file for the module.
+This project is a (currently) incomplete reconstruction of the Huffman dictionaries used to compress version 11.x Intel ME modules. The dictionaries are sufficient to decompress nearly all modules entirely, with hashes matching those in the metadata files, but for some there will be a few unknown symbols encountered. Note that the decompression script requires the decompressed size of the Huffman compressed module as an argument; this can be found in the corresponding metadata file for the module.
 
 ## Status
 
-The current reconstructed dictionaries are sufficient to decompress the `rbe` and `syslib` modules with hashes that match the hashes specified in the metadata files. The `bup` and `kernel` modules are still missing a few symbols, but when the length of the unknown symbols can be inferred, the decompression script will insert the proper number of filler bytes in order to preserve alignment. I'm pretty confident about the codeword "shape" except for some possibility that the border between the 13-bit and 14-bit codewords may need to shift slightly.
+The current reconstructed dictionaries are sufficient to decompress all Huffman compressed modules except for `amt`, tested on all of the version 11.0 and 11.6 firmwares available [here](http://www.win-raid.com/t832f39-Intel-Engine-Firmware-Repositories.html). This includes the `bup`, `kernel`, `rbe`, and `syslib` modules. The `amt` modules are still missing a few symbols, but when the length of the unknown symbols can be inferred, the decompression script will insert the proper number of filler bytes in order to preserve alignment. I'm still pretty confident about the codeword "shape" except for some possibility that the border between the 13-bit and 14-bit codewords may need to shift slightly.
 
 ## Compression Details
 

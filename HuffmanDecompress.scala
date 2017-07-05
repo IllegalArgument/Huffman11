@@ -55,7 +55,7 @@ object HuffmanDecompress {
 							// If there's stilll space in the decompressed buffer for this chunk, just write the symbol
 							// And print some information if a filler symbol was used
 							if (unknown(length).contains(code)) {
-								println(f"Unknown codeword ${s"%${length}s".format(code.toBinaryString).replace(' ', '0')}%15s (dictionary 0x$dictionaryType%X, code length $length%2s, code ${f"0x$code%X"}%5s, symbol length ${symbol.length}) at decompressed offset 0x${decompressedBuffer.position}%X")
+								println(f"Unknown codeword ${s"%${length}s".format(code.toBinaryString).replace(' ', '0')}%-15s (dictionary 0x$dictionaryType%X, code length $length%2s, code ${f"0x$code%X"}%5s, symbol length ${symbol.length}) at decompressed offset 0x${decompressedBuffer.position}%X")
 							}
 							decompressedBuffer.put(symbol)
 						} else {
@@ -63,7 +63,7 @@ object HuffmanDecompress {
 							// symbols, it's possible that a codeword is parsed that would map to a symbol that is
 							// longer than the space remaining in the decompressed chunk buffer
 							// If this happens, ignore that last symbol that would otherwise overflow the chunk buffer
-							println(f"Skipping overflowing symbol ${s"%${length}s".format(code.toBinaryString).replace(' ', '0')}%15s (dictionary 0x$dictionaryType%X, code length $length%2s, code ${f"0x$code%X"}%5s, symbol length ${symbol.length}) at decompressed offset 0x${decompressedBuffer.position}%X")
+							println(f"Skipping overflowing symbol ${s"%${length}s".format(code.toBinaryString).replace(' ', '0')}%-15s (dictionary 0x$dictionaryType%X, code length $length%2s, code ${f"0x$code%X"}%5s, symbol length ${symbol.length}) at decompressed offset 0x${decompressedBuffer.position}%X")
 							decompressedBuffer.put(Array.fill(decompressedBuffer.remaining)(0x7F.toByte))
 						}
 					} else {
