@@ -2,11 +2,11 @@
 
 ## About
 
-This project is a (currently) incomplete reconstruction of the Huffman dictionaries used to compress version 11.x Intel ME modules. The dictionaries are sufficient to decompress nearly all modules entirely, with hashes matching those in the metadata files, but for some there will be a few unknown symbols encountered. Note that the decompression script requires the decompressed size of the Huffman compressed module as an argument; this can be found in the corresponding metadata file for the module.
+This project is a reconstruction of the Huffman dictionaries used to compress version 11.x Intel ME modules. The dictionaries have been tested every version 11.x firmware image that I could find. For all modules in all of the tested versions, the hash of the decompressed output matches the hash in the corresponding metadata file. Note that the decompression script requires the decompressed size of the Huffman compressed module as an argument; this can be found in the corresponding metadata file for the module.
 
 ## Status
 
-The current reconstructed dictionaries are sufficient to decompress all Huffman compressed modules except for `amt`, tested on all of the version 11.0 and 11.6 firmwares available [here](http://www.win-raid.com/t832f39-Intel-Engine-Firmware-Repositories.html). This includes the `bup`, `kernel`, `rbe`, and `syslib` modules. The `amt` modules are still missing a few symbols, but when the length of the unknown symbols can be inferred, the decompression script will insert the proper number of filler bytes in order to preserve alignment. I'm still pretty confident about the codeword "shape" except for some possibility that the border between the 13-bit and 14-bit codewords may need to shift slightly.
+The dictionaries are complete enough to successfully decompress all version 11.x ME firmware that I was able to find. Although there are still some unmapped codewords in the dictionaries, I am not sure if these are ever used.
 
 ## Compression Details
 
