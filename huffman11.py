@@ -2,6 +2,7 @@
 
 import itertools
 import struct
+import sys
 
 HUFFMAN_SYMBOLS = {
     0x20: {
@@ -3132,7 +3133,7 @@ HUFFMAN_SHAPE = [
 CHUNK_SIZE = 0x1000
 
 def huffman_decompress(module_contents, compressed_size, decompressed_size):
-    chunk_count = decompressed_size / CHUNK_SIZE
+    chunk_count = int(decompressed_size / CHUNK_SIZE)
     header_size = chunk_count * 0x4
 
     module_buffer = bytearray(module_contents)
@@ -3162,7 +3163,11 @@ def huffman_decompress(module_contents, compressed_size, decompressed_size):
                 compressed_position += 1
                 available_bits += 8
 
-            codeword_length, _, base_codeword = next(itertools.dropwhile(lambda x: bit_buffer < x[1], HUFFMAN_SHAPE))
+            codeword_length, base_codeword = 0, 0
+            for length, shape, base in HUFFMAN_SHAPE:
+                if bit_buffer >= shape:
+                    codeword_length, base_codeword = length, base
+                    break
 
             if available_bits >= codeword_length:
                 codeword = bit_buffer >> (32 - codeword_length)
@@ -3191,3 +3196,13 @@ def huffman_decompress(module_contents, compressed_size, decompressed_size):
                 decompressed_position = decompressed_limit
 
     return decompressed_buffer
+
+def main():
+    with open(sys.argv[1], 'rb') as input:
+        decompressed = huffman_decompress(input.read(), int(sys.argv[3], 0), int(sys.argv[4], 0))
+        with open(sys.argv[2], 'wb') as output:
+            output.write(decompressed)
+
+if __name__ == "__main__":
+    main()
+
