@@ -3132,7 +3132,7 @@ HUFFMAN_SHAPE = [
 
 CHUNK_SIZE = 0x1000
 
-def huffman_decompress(module_contents, compressed_size, decompressed_size):
+def huffman_decompress(module_contents, compressed_size, decompressed_size, print_msg):
     chunk_count = int(decompressed_size / CHUNK_SIZE)
     header_size = chunk_count * 0x4
 
@@ -3146,7 +3146,7 @@ def huffman_decompress(module_contents, compressed_size, decompressed_size):
     end_offsets = itertools.chain(start_offsets[1:], [compressed_size - header_size])
 
     for index, dictionary_type, start, end in zip(range(chunk_count), flags, start_offsets, end_offsets):
-        print("==Processing chunk 0x{:X} at compressed offset 0x{:X} with dictionary 0x{:X}==".format(index, start, dictionary_type))
+        if print_msg == 'all' : print("==Processing chunk 0x{:X} at compressed offset 0x{:X} with dictionary 0x{:X}==".format(index, start, dictionary_type))
 
         dictionary = HUFFMAN_SYMBOLS[dictionary_type]
         unknowns = HUFFMAN_UNKNOWNS[dictionary_type]
@@ -3159,9 +3159,9 @@ def huffman_decompress(module_contents, compressed_size, decompressed_size):
 
         while decompressed_position < decompressed_limit:
             while available_bits <= 24 and compressed_position < compressed_limit:
-                bit_buffer |= compressed_buffer[compressed_position] << (24 - available_bits)
-                compressed_position += 1
-                available_bits += 8
+                bit_buffer = bit_buffer | compressed_buffer[compressed_position] << (24 - available_bits)
+                compressed_position = compressed_position + 1
+                available_bits = available_bits + 8
 
             codeword_length, base_codeword = 0, 0
             for length, shape, base in HUFFMAN_SHAPE:
@@ -3172,37 +3172,39 @@ def huffman_decompress(module_contents, compressed_size, decompressed_size):
             if available_bits >= codeword_length:
                 codeword = bit_buffer >> (32 - codeword_length)
                 bit_buffer = (bit_buffer << codeword_length) & 0xFFFFFFFF
-                available_bits -= codeword_length
+                available_bits = available_bits - codeword_length
 
                 symbol = dictionary[codeword_length][base_codeword - codeword]
                 symbol_length = len(symbol)
+                symbol_remain_length = decompressed_limit - decompressed_position
 
-                if decompressed_limit - decompressed_position >= symbol_length:
+                if symbol_remain_length >= symbol_length:
                     if codeword in unknowns[codeword_length]:
-                        print("Unknown codeword {: <15s} (dictionary 0x{:X}, codeword length {: >2d}, codeword {: >5s}, symbol length {:d}) at decompressed offset 0x{:X}".format(
+                        if print_msg in ['all','error'] :
+                            print("Unknown codeword {: <15s} (dictionary 0x{:X}, codeword length {: >2d}, codeword {: >5s}, symbol length {:d}) at decompressed offset 0x{:X}".format(
                             ("{:0>" + str(codeword_length) + "b}").format(codeword), dictionary_type, codeword_length, "0x{:X}".format(codeword), symbol_length, decompressed_position))
                     decompressed_buffer[decompressed_position:(decompressed_position + symbol_length)] = symbol
                     decompressed_position += symbol_length
                 else:
-                    print("Skipping overflowing codeword {: <15s} (dictionary 0x{:X}, codeword length {: >2d}, codeword {: >5s}, symbol length {:d}) at decompressed offset 0x{:X}".format(
+                    if print_msg in ['all','error'] :
+                        print("Skipping overflowing codeword {: <15s} (dictionary 0x{:X}, codeword length {: >2d}, codeword {: >5s}, symbol length {:d}) at decompressed offset 0x{:X}".format(
                         ("{:0>" + str(codeword_length) + "b}").format(codeword), dictionary_type, codeword_length, "0x{:X}".format(codeword), symbol_length, decompressed_position))
-                    filler = itertools.repeat(0x7F, decompressed_limit - decompressed_position)
+                    filler = itertools.repeat(0x7F, symbol_remain_length)
                     decompressed_buffer[decompressed_position:decompressed_limit] = filler
                     decompressed_position = decompressed_limit
             else:
-                print("Reached end of compressed stream early at decompressed offset 0x{:X}".format(decompressed_position))
-                filler = itertools.repeat(0x7F, decompressed_limit - decompressed_position)
+                if print_msg in ['all','error'] : print("Reached end of compressed stream early at decompressed offset 0x{:X}".format(decompressed_position))
+                filler = itertools.repeat(0x7F, symbol_remain_length)
                 decompressed_buffer[decompressed_position:decompressed_limit] = filler
                 decompressed_position = decompressed_limit
 
     return decompressed_buffer
 
 def main():
-    with open(sys.argv[1], 'rb') as input:
-        decompressed = huffman_decompress(input.read(), int(sys.argv[3], 0), int(sys.argv[4], 0))
-        with open(sys.argv[2], 'wb') as output:
-            output.write(decompressed)
+    with open(sys.argv[1], 'rb') as file_input:
+        decompressed = huffman_decompress(file_input.read(), int(sys.argv[3], 0), int(sys.argv[4], 0), 'all')
+        with open(sys.argv[2], 'wb') as file_output:
+            file_output.write(decompressed)
 
 if __name__ == "__main__":
     main()
-
