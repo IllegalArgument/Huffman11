@@ -4,7 +4,6 @@ import java.nio.file.{Files, Path, Paths}
 object HuffmanDecompress {
 	import HuffmanDictionaries.Shape
 	import HuffmanDictionaries.Symbols
-	import HuffmanDictionaries.UnknownCodes
 
 	val ChunkSize = 0x1000
 
@@ -27,7 +26,6 @@ object HuffmanDecompress {
 				println(f"==Processing chunk 0x$index%X at compressed offset 0x$startOffset%X with dictionary 0x$dictionaryType%X==")
 
 				val dictionary = Symbols(dictionaryType)
-				val unknown = UnknownCodes(dictionaryType)
 
 				compressedBuffer.position(startOffset).limit(endOffset)
 				decompressedBuffer.position(index * ChunkSize).limit((index + 1) * ChunkSize)
@@ -53,10 +51,6 @@ object HuffmanDecompress {
 						val symbol = dictionary(length)(firstCode - code)
 						if (decompressedBuffer.remaining >= symbol.length) {
 							// If there's stilll space in the decompressed buffer for this chunk, just write the symbol
-							// And print some information if a filler symbol was used
-							if (unknown(length).contains(code)) {
-								println(f"Unknown codeword ${s"%${length}s".format(code.toBinaryString).replace(' ', '0')}%-15s (dictionary 0x$dictionaryType%X, code length $length%2s, code ${f"0x$code%X"}%5s, symbol length ${symbol.length}) at decompressed offset 0x${decompressedBuffer.position}%X")
-							}
 							decompressedBuffer.put(symbol)
 						} else {
 							// Although this shouldn't happen with complete dictionaries, since we have a few missing

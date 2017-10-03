@@ -1,12 +1,18 @@
 # Huffman11
 
+## Credits
+
+- [IllegalArgument](https://github.com/IllegalArgument) for starting this project
+- [Plato Mavropoulos](https://github.com/platomav) for invaluable help reconstructing the dictionaries and integrating this project with the [ME Analyzer](https://github.com/platomav/MEAnalyzer) firmware analysis tool
+- The [Positive Research Team](https://github.com/ptresearch) for recovering the complete dictionaries and sharing their findings with the community in their [Intel ME 11.x Firmware Images Unpacker](https://github.com/ptresearch/unME11) tool
+
 ## About
 
 This project is a reconstruction of the Huffman dictionaries used to compress version 11.x Intel ME modules. The dictionaries have been tested every version 11.x firmware image that I could find. For all modules in all of the tested versions, the hash of the decompressed output matches the hash in the corresponding metadata file. Note that the decompression script requires the decompressed size of the Huffman compressed module as an argument; this can be found in the corresponding metadata file for the module.
 
 ## Status
 
-The dictionaries are complete enough to successfully decompress all version 11.x ME firmware that I was able to find. Although there are still some unmapped codewords in the dictionaries, I am not sure if these are ever used.
+The dictionaries are complete enough to successfully decompress all version 11.x ME firmware that I was able to find. Thanks to the work of the Positive Research Team, the dictionaries should finally be complete with no unmapped codewords.
 
 ## Compression Details
 
